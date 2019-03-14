@@ -1,0 +1,63 @@
+{
+  "name": "@cqlinkoff/wk-bridge",
+  "version": "1.0.0",
+  "description": "Bridge between Native and Web, based on WKWebView and compatible Android",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "sideEffects": false,
+  "scripts": {
+    "pretest": "npm run lint",
+    "test": "jest --no-cache",
+    "lint": "npm run lint:js",
+    "lint:js": "eslint ./src/**",
+    "prebuild": "npm run test",
+    "build": "npm run build:es && npm run build:commonjs",
+    "build:commonjs": "BABEL_ENV=commonjs babel src -d lib",
+    "build:es": "BABEL_ENV=es babel src -d es",
+    "prepare": "npm run build",
+    "preversion": "npm run build",
+    "coverage": "cat ./coverage/lcov.info | coveralls"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kagawagao/wk-bridge.git"
+  },
+  "keywords": [
+    "native",
+    "web",
+    "bridge",
+    "wkwebview"
+  ],
+  "author": "kagawagao <kingsongao1221@gmail.com> (https://kingsongao.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kagawagao/wk-bridge/issues"
+  },
+  "homepage": "https://github.com/kagawagao/wk-bridge#readme",
+  "files": [
+    "es",
+    "lib"
+  ],
+  "engines": {
+    "node": ">= 8",
+    "npm": ">= 5"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/runtime": "^7.3.4",
+    "babel-eslint": "^10.0.1",
+    "babel-jest": "^24.5.0",
+    "coveralls": "^3.0.3",
+    "eslint": "^5.15.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.5.0"
+  }
+}
