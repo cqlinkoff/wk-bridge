@@ -2,11 +2,17 @@ import WKBridge from '../src'
 
 beforeAll(() => {
   const context = {
-    testSuccess: () => {
-      window.executeCallback(null, {})
+    testSuccess: (param) => {
+      const { id } = JSON.parse(param)
+      window.executeCallback(id, null, { status: true })
     },
-    testFail: () => {
-      window.executeCallback(new Error('error'), null)
+    testFail: (param) => {
+      const { id } = JSON.parse(param)
+      window.executeCallback(id, new Error('error'), null)
+    },
+    testFailWithMessage: (param) => {
+      const { id } = JSON.parse(param)
+      window.executeCallback(id, 'error message', null)
     }
   }
 
@@ -19,8 +25,6 @@ beforeAll(() => {
       namespace.messageHandlers[key] = {
         postMessage: function (param) {
           if (!param) return
-          console.log(key)
-          console.log(context[key])
           context[key](JSON.stringify(param))
         }
       }
@@ -30,7 +34,6 @@ beforeAll(() => {
   if (!window.webkit) {
     window.webkit = namespace
   }
-  console.log(window.webkit)
 })
 
 describe('WKBridge', () => {
@@ -48,13 +51,28 @@ describe('WKBridge', () => {
     expect(promise).toBeInstanceOf(Promise)
   })
 
-  test('call postMessage', async () => {
+  test('call success cb', async () => {
     const wkBridge = new WKBridge()
 
     const res = await wkBridge.postMessage('testSuccess', {})
+    expect(res.status).toBe(true)
+  })
 
-    console.log(res)
+  test('call fail cb', async () => {
+    const wkBridge = new WKBridge()
+    try {
+      await wkBridge.postMessage('testFail', {})
+    } catch (error) {
+      expect(error.message).toBe('error')
+    }
+  })
 
-    expect(res).toBeDefined()
+  test('call fail cb', async () => {
+    const wkBridge = new WKBridge()
+    try {
+      await wkBridge.postMessage('testFailWithMessage', {})
+    } catch (error) {
+      expect(error.message).toBe('error message')
+    }
   })
 })
