@@ -1,7 +1,7 @@
 import WKBridge from '../src'
 
 beforeAll(() => {
-  const context = {
+  window.chainLong = {
     testSuccess: (param) => {
       const { id } = JSON.parse(param)
       window.executeCallback(id, null, { status: true })
@@ -15,25 +15,6 @@ beforeAll(() => {
       window.executeCallback(id, 'error message', null)
     }
   }
-
-  const namespace = {
-    messageHandlers: {}
-  }
-
-  Object.keys(context).forEach(function (key) {
-    if (!namespace.messageHandlers[key]) {
-      namespace.messageHandlers[key] = {
-        postMessage: function (param) {
-          if (!param) return
-          context[key](JSON.stringify(param))
-        }
-      }
-    }
-  })
-
-  if (!window.webkit) {
-    window.webkit = namespace
-  }
 })
 
 describe('WKBridge', () => {
@@ -41,25 +22,33 @@ describe('WKBridge', () => {
     const wkBridge = new WKBridge()
 
     expect(wkBridge).toBeInstanceOf(WKBridge)
+    expect(wkBridge.namespace).toBe('')
   })
 
   test('call postMessage', () => {
-    const wkBridge = new WKBridge()
+    const wkBridge = new WKBridge({
+      namespace: 'chainLong'
+    })
 
     const promise = wkBridge.postMessage('testSuccess', {})
 
     expect(promise).toBeInstanceOf(Promise)
+    expect(wkBridge.namespace).toBe('chainLong')
   })
 
   test('call success cb', async () => {
-    const wkBridge = new WKBridge()
+    const wkBridge = new WKBridge({
+      namespace: 'chainLong'
+    })
 
     const res = await wkBridge.postMessage('testSuccess', {})
     expect(res.status).toBe(true)
   })
 
   test('call fail cb', async () => {
-    const wkBridge = new WKBridge()
+    const wkBridge = new WKBridge({
+      namespace: 'chainLong'
+    })
     try {
       await wkBridge.postMessage('testFail', {})
     } catch (error) {
@@ -68,7 +57,9 @@ describe('WKBridge', () => {
   })
 
   test('call fail cb', async () => {
-    const wkBridge = new WKBridge()
+    const wkBridge = new WKBridge({
+      namespace: 'chainLong'
+    })
     try {
       await wkBridge.postMessage('testFailWithMessage', {})
     } catch (error) {

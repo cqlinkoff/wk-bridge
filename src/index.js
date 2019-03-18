@@ -1,5 +1,7 @@
 export default class WKBridge {
-  constructor () {
+  constructor (options = {}) {
+    const { namespace = '' } = options
+    this.namespace = namespace
     this.lastId = 0
     this.callbacks = {}
     window.executeCallback = (id, error, value) => {
@@ -8,6 +10,25 @@ export default class WKBridge {
       } else {
         this.sendResponse(id, value)
       }
+    }
+
+    if (!window.webkit && window[namespace]) {
+      const context = window[namespace]
+      const webkit = {
+        messageHandlers: {}
+      }
+
+      Object.keys(context).forEach(function (key) {
+        if (!webkit.messageHandlers[key]) {
+          webkit.messageHandlers[key] = {
+            postMessage: function (param) {
+              context[key](JSON.stringify(param))
+            }
+          }
+        }
+      })
+
+      window.webkit = webkit
     }
   }
 
@@ -38,7 +59,6 @@ export default class WKBridge {
   }
 
   sendError (id, error) {
-    console.log(`<== ${id} sendError ${error}`)
     const callback = this.callbacks[id]
     if (callback) {
       callback(error instanceof Error ? error : new Error(error), null)
