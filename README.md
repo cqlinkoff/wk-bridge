@@ -35,7 +35,7 @@ bridge.postMessage(handler, data)
 
 - `options`:
 
-  - `namespace`: namespace which inject by android WebView
+  - `namespace`: namespace which inject by Android WebView
 
 ### `postMessage(handler, data)`
 
