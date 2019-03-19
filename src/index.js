@@ -18,12 +18,10 @@ export default class WKBridge {
         messageHandlers: {}
       }
 
-      Object.keys(context).forEach(function (key) {
-        if (!webkit.messageHandlers[key]) {
-          webkit.messageHandlers[key] = {
-            postMessage: function (param) {
-              context[key](JSON.stringify(param))
-            }
+      Object.keys(context).forEach((key) => {
+        webkit.messageHandlers[key] = {
+          postMessage: (param) => {
+            context[key](JSON.stringify(param))
           }
         }
       })
@@ -55,6 +53,8 @@ export default class WKBridge {
     if (callback) {
       callback(null, result)
       delete this.callbacks[id]
+    } else {
+      throw new TypeError('No callback found')
     }
   }
 
@@ -63,6 +63,8 @@ export default class WKBridge {
     if (callback) {
       callback(error instanceof Error ? error : new Error(error), null)
       delete this.callbacks[id]
+    } else {
+      throw new TypeError('No callback found')
     }
   }
 }

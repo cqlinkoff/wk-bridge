@@ -66,4 +66,18 @@ describe('WKBridge', () => {
       expect(error.message).toBe('error message')
     }
   })
+
+  test('call sendResponse directly', async () => {
+    const wkBridge = new WKBridge({
+      namespace: 'chainLong'
+    })
+    expect(() => wkBridge.sendResponse(1, {})).toThrow('No callback found')
+  })
+
+  test('call sendError directly', async () => {
+    const wkBridge = new WKBridge({
+      namespace: 'chainLong'
+    })
+    expect(() => wkBridge.sendError(1, {})).toThrow('No callback found')
+  })
 })
