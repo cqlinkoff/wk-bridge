@@ -4,6 +4,7 @@ beforeAll(() => {
   window.chainLong = {
     testSuccess: (param) => {
       const { id } = JSON.parse(param)
+      console.log('call', id)
       window.executeCallback(id, null, { status: true })
     },
     testFail: (param) => {
@@ -23,6 +24,24 @@ describe('WKBridge', () => {
 
     expect(wkBridge).toBeInstanceOf(WKBridge)
     expect(wkBridge.namespace).toBe('')
+  })
+
+  test('inject multiple times', async () => {
+    window.test = window.chainLong
+    const wkBridge1 = new WKBridge({
+      namespace: 'chainLong'
+    })
+    const wkBridge2 = new WKBridge({
+      namespace: 'test'
+    })
+
+    console.log(window.webkit.messageHandlers)
+
+    const res1 = await wkBridge1.postMessage('testSuccess', {})
+    expect(res1.status).toBe(true)
+
+    const res2 = await wkBridge2.postMessage('testSuccess', {})
+    expect(res2.status).toBe(true)
   })
 
   test('call postMessage', () => {
@@ -67,17 +86,11 @@ describe('WKBridge', () => {
     }
   })
 
-  test('call sendResponse directly', async () => {
+  test('call callback directly', async () => {
     const wkBridge = new WKBridge({
       namespace: 'chainLong'
     })
-    expect(() => wkBridge.sendResponse(1, {})).toThrow('No callback found')
-  })
-
-  test('call sendError directly', async () => {
-    const wkBridge = new WKBridge({
-      namespace: 'chainLong'
-    })
-    expect(() => wkBridge.sendError(1, {})).toThrow('No callback found')
+    expect(() => wkBridge.callback(1, {})).toThrow('No callback found')
+    expect(() => wkBridge.callback(1, {})).toThrow('No callback found')
   })
 })
