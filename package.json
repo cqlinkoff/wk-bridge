@@ -1,6 +1,6 @@
 {
   "name": "@cqlinkoff/wk-bridge",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Bridge between Native and Web, based on WKWebView and compatible Android",
   "main": "lib/index.js",
   "module": "es/index.js",
