@@ -8,8 +8,11 @@ export default class WKBridge {
     this.callbacks = {}
     this.handlers = {}
 
-    if (!window.executeCallback) {
+    if (!window[GLOBAL_CALLBACKS]) {
       window[GLOBAL_CALLBACKS] = {}
+    }
+
+    if (!window.executeCallback) {
       window.executeCallback = (id, error, value) => {
         window[GLOBAL_CALLBACKS][id](id, error, value)
       }
@@ -22,20 +25,20 @@ export default class WKBridge {
       }
 
       window.webkit = webkit
+    }
 
-      if (window[namespace]) {
-        const context = window[namespace]
+    if (window[namespace]) {
+      const context = window[namespace]
 
-        Object.keys(context).forEach((key) => {
-          const handler = ['$$', namespace, key].join('_')
-          this.handlers[key] = handler
-          window.webkit.messageHandlers[handler] = {
-            postMessage: (param) => {
-              context[key](JSON.stringify(param))
-            }
+      Object.keys(context).forEach((key) => {
+        const handler = ['$$', namespace, key].join('_')
+        this.handlers[key] = handler
+        window.webkit.messageHandlers[handler] = {
+          postMessage: (param) => {
+            context[key](JSON.stringify(param))
           }
-        })
-      }
+        }
+      })
     }
   }
 
@@ -44,12 +47,14 @@ export default class WKBridge {
       throw new TypeError('No callback found')
     } else {
       this.callbacks[id](error, value)
+      delete this.callbacks[id]
+      delete window[GLOBAL_CALLBACKS][id]
     }
   }
 
   postMessage (key, data) {
     return new Promise((resolve, reject) => {
-      const id = `$$_${this.lastId++}`
+      const id = `$$_${this.namespace}_${this.lastId++}`
       this.callbacks[id] = (err, data) => {
         if (err) {
           reject(err instanceof Error ? err : new Error(err))
