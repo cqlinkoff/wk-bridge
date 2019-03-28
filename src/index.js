@@ -15,26 +15,27 @@ export default class WKBridge {
       }
     }
 
+    // compatible Android
     if (!window.webkit) {
       const webkit = {
         messageHandlers: {}
       }
 
       window.webkit = webkit
-    }
 
-    if (window[namespace]) {
-      const context = window[namespace]
+      if (window[namespace]) {
+        const context = window[namespace]
 
-      Object.keys(context).forEach((key) => {
-        const handler = ['$$', namespace, key].join('_')
-        this.handlers[key] = handler
-        window.webkit.messageHandlers[handler] = {
-          postMessage: (param) => {
-            context[key](JSON.stringify(param))
+        Object.keys(context).forEach((key) => {
+          const handler = ['$$', namespace, key].join('_')
+          this.handlers[key] = handler
+          window.webkit.messageHandlers[handler] = {
+            postMessage: (param) => {
+              context[key](JSON.stringify(param))
+            }
           }
-        }
-      })
+        })
+      }
     }
   }
 
@@ -57,7 +58,7 @@ export default class WKBridge {
         }
       }
       window[GLOBAL_CALLBACKS][id] = this.callback
-      const handler = this.handlers[key]
+      const handler = this.handlers[key] || key
       window.webkit.messageHandlers[handler].postMessage({
         'name': handler,
         'object': data,
