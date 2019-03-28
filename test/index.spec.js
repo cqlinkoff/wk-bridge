@@ -4,7 +4,6 @@ beforeAll(() => {
   window.chainLong = {
     testSuccess: (param) => {
       const { id } = JSON.parse(param)
-      console.log('call', id)
       window.executeCallback(id, null, { status: true })
     },
     testFail: (param) => {
@@ -34,8 +33,6 @@ describe('WKBridge', () => {
     const wkBridge2 = new WKBridge({
       namespace: 'test'
     })
-
-    console.log(window.webkit.messageHandlers)
 
     const res1 = await wkBridge1.postMessage('testSuccess', {})
     expect(res1.status).toBe(true)
